@@ -1,43 +1,50 @@
 import socket
 import sys
 from tqdm import tqdm  
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
-def banner_grab(ports):
-    print("Banner Grabbing")
+def banner_grab(ports, target):
+    print("\nBanner Grabbing")
     for port in ports:
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.settimeout(2)
             s.connect((target, port))
             banner = s.recv(1024)
-            print(f"Port {port} - {banner}")
+            print(f"Port {port} - {banner.decode().strip()}")
             s.close()
         except:
             print(f"Port {port} - No banner available")
     return 
 
-def scanning(start_port, end_port, target):
+def scan_port(target, port):
     try:
-        open_ports = []
-        for port in tqdm(range(start_port, end_port + 1), desc="Scanning", unit="port"):
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.settimeout(0.1)
-            if s.connect_ex((target, port)) == 0:
-                try:
-                    service = socket.getservbyport(port)
-                except:
-                    service = "Unknown Service"
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(0.1)
+        if s.connect_ex((target, port)) == 0:
+            try:
+                service = socket.getservbyport(port)
+            except:
+                service = "Unknown Service"
+            s.close()
+            return (port, service)
+    except Exception as e:
+        return None
+    s.close()
+    return None
+
+def scanning(start_port, end_port, target):
+    open_ports = []
+    with ThreadPoolExecutor(max_workers=100) as executor:  # Define o número de threads
+        futures = [executor.submit(scan_port, target, port) for port in range(start_port, end_port + 1)]
+        for future in tqdm(as_completed(futures), total=len(futures), desc="Scanning", unit="port"):
+            result = future.result()
+            if result:
+                port, service = result
                 open_ports.append(port)
                 print(f'Port {port} is open - Service: {service}')
-            
-            s.close()
-        return open_ports
-    except KeyboardInterrupt:
-        print("\nScan interrupted by user.")
-        sys.exit(0)
-    except Exception as e:
-        print("\nError:", e)
-        sys.exit(1)
+    return open_ports
+
 def main():
     if len(sys.argv) < 2:
         print("Usage: python3 roteiro1.py <ip>")
@@ -57,9 +64,10 @@ def main():
 
     print(f'Scanning host with IP: {target} from port {start_port} to {end_port}')
     open_ports = scanning(start_port, end_port, target)
-    banner_grab(open_ports)
+    banner_grab(open_ports, target)
     print("Scan completed.")
     sys.exit(0)
     return 
+    
 if __name__ == "__main__":
     main()
