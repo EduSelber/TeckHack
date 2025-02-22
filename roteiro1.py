@@ -3,7 +3,7 @@ import sys
 import os
 from concurrent.futures import ThreadPoolExecutor
 
-# Função para pegar banner das portas
+
 def banner_grab(ports, target):
     print("\nBanner Grabbing")
     for port in ports:
@@ -78,9 +78,9 @@ def scanning(start_port, end_port, target):
         
         if start_port == end_port:
             if service != "N/A":
-                print(f"Port {port} - Status: {status} - Service: {service}")
+                print(f"Port {start_port} - Status: {status} - Service: {service}")
             else:
-                print(f"Port {port} - Status: {status}")
+                print(f"Port {start_port} - Status: {status}")
         else:
             print(f"Port {start_port}-{end_port} - Status: {status}")
         
@@ -93,7 +93,6 @@ def scanning(start_port, end_port, target):
 
 def is_host_reachable(target):
     try:
-        
         response = os.system(f"ping -c 1 {target} > /dev/null 2>&1")
         return response == 0
     except:
@@ -106,7 +105,6 @@ def main():
 
     target = sys.argv[1]
 
-    
     try:
         target_ip = socket.gethostbyname(target)
         print(f"Resolving host {target} to IP {target_ip}")
@@ -114,7 +112,6 @@ def main():
         print("Invalid host or IP address")
         sys.exit(1)
 
-    
     if not is_host_reachable(target_ip):
         print(f"Host {target_ip} is unreachable")
         sys.exit(1)
@@ -122,9 +119,6 @@ def main():
     try:
         start_port = int(input("Enter the starting port: "))
         end_port = int(input("Enter the ending port: "))
-        #if start_port < 1 or end_port > 65535 or start_port > end_port:
-        #    print("Invalid port range. Please enter a valid range between 1 and 65535.")
-        #    sys.exit(1)
     except ValueError:
         print("Invalid input. Please enter numeric values for the ports.")
         sys.exit(1)
