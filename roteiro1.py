@@ -2,7 +2,7 @@ import socket
 import sys
 import os
 from concurrent.futures import ThreadPoolExecutor
-from tqdm import tqdm  # Importando o tqdm para a barra de progresso
+from tqdm import tqdm 
 
 def banner_grab(ports, target, family):
     print("\nBanner Grabbing")
@@ -103,7 +103,7 @@ def is_host_reachable(target, family):
         return False
 
 def main():
-    target = input("Enter the ip of the server/host: ")
+    target = input("Enter the IP address or hostname of the target server/host:  ")
     family = None
     target_ip = None
 
