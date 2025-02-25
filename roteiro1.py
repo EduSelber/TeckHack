@@ -3,12 +3,11 @@ import sys
 import os
 from concurrent.futures import ThreadPoolExecutor
 
-
-def banner_grab(ports, target):
+def banner_grab(ports, target, family):
     print("\nBanner Grabbing")
     for port in ports:
         try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s = socket.socket(family, socket.SOCK_STREAM)
             s.settimeout(3)
             s.connect((target, port))
             banner = s.recv(1024)
@@ -18,10 +17,9 @@ def banner_grab(ports, target):
             print(f"Port {port} - No banner available")
     return 
 
-
-def scan_port(target, port):
+def scan_port(target, port, family):
     try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s = socket.socket(family, socket.SOCK_STREAM)
         s.settimeout(1)
         
         result = s.connect_ex((target, port))  
@@ -43,20 +41,16 @@ def scan_port(target, port):
 
     except Exception as e:
         return None
-    s.close()
-    return None
 
-
-def scanning(start_port, end_port, target):
+def scanning(start_port, end_port, target, family):
     port_status = []
     with ThreadPoolExecutor(max_workers=100) as executor:  
-        futures = [executor.submit(scan_port, target, port) for port in range(start_port, end_port + 1)]
+        futures = [executor.submit(scan_port, target, port, family) for port in range(start_port, end_port + 1)]
         for future in futures:
             result = future.result()
             if result:
                 port, service, status = result
                 port_status.append((port, service, status))
-    
     
     print("\nPort Scan Results:")
     if not port_status:
@@ -86,14 +80,15 @@ def scanning(start_port, end_port, target):
         
         i += 1
 
-    
     open_ports = [port for port, _, status in port_status if status == "Open"]
     return open_ports
 
-
-def is_host_reachable(target):
+def is_host_reachable(target, family):
     try:
-        response = os.system(f"ping -c 1 {target} > /dev/null 2>&1")
+        if family == socket.AF_INET6:
+            response = os.system(f"ping6 -c 1 {target} > /dev/null 2>&1")
+        else:
+            response = os.system(f"ping -c 1 {target} > /dev/null 2>&1")
         return response == 0
     except:
         return False
@@ -104,15 +99,19 @@ def main():
         sys.exit(1)
 
     target = sys.argv[1]
+    family = None
+    target_ip = None
 
     try:
-        target_ip = socket.gethostbyname(target)
+        addr_info = socket.getaddrinfo(target, None)
+        target_ip = addr_info[0][4][0]
+        family = addr_info[0][0]
         print(f"Resolving host {target} to IP {target_ip}")
     except socket.gaierror:
         print("Invalid host or IP address")
         sys.exit(1)
 
-    if not is_host_reachable(target_ip):
+    if not is_host_reachable(target_ip, family):
         print(f"Host {target_ip} is unreachable")
         sys.exit(1)
 
@@ -124,12 +123,11 @@ def main():
         sys.exit(1)
 
     print(f'Scanning host with IP: {target_ip} from port {start_port} to {end_port}')
-    open_ports = scanning(start_port, end_port, target_ip)
-    banner_grab(open_ports, target_ip)
+    open_ports = scanning(start_port, end_port, target_ip, family)
+    banner_grab(open_ports, target_ip, family)
     
     print("Scan completed.")
     sys.exit(0)
-    return 
     
 if __name__ == "__main__":
     main()
