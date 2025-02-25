@@ -2,6 +2,7 @@ import socket
 import sys
 import os
 from concurrent.futures import ThreadPoolExecutor
+from tqdm import tqdm  # Importando o tqdm para a barra de progresso
 
 def banner_grab(ports, target, family):
     print("\nBanner Grabbing")
@@ -44,13 +45,21 @@ def scan_port(target, port, family):
 
 def scanning(start_port, end_port, target, family):
     port_status = []
-    with ThreadPoolExecutor(max_workers=100) as executor:  
-        futures = [executor.submit(scan_port, target, port, family) for port in range(start_port, end_port + 1)]
-        for future in futures:
-            result = future.result()
-            if result:
-                port, service, status = result
-                port_status.append((port, service, status))
+    with ThreadPoolExecutor(max_workers=1000) as executor:  
+        ports_to_scan = range(start_port, end_port + 1)
+        
+        futures = []
+        with tqdm(total=len(ports_to_scan), desc="Scanning Ports", ncols=100) as pbar:
+            for port in ports_to_scan:
+                future = executor.submit(scan_port, target, port, family)
+                futures.append(future)
+                pbar.update(1)
+                
+            for future in futures:
+                result = future.result()
+                if result:
+                    port, service, status = result
+                    port_status.append((port, service, status))
     
     print("\nPort Scan Results:")
     if not port_status:
@@ -94,11 +103,7 @@ def is_host_reachable(target, family):
         return False
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python3 roteiro1.py <ip_or_hostname>")
-        sys.exit(1)
-
-    target = sys.argv[1]
+    target = input("Enter the ip of the server/host: ")
     family = None
     target_ip = None
 
@@ -109,10 +114,6 @@ def main():
         print(f"Resolving host {target} to IP {target_ip}")
     except socket.gaierror:
         print("Invalid host or IP address")
-        sys.exit(1)
-
-    if not is_host_reachable(target_ip, family):
-        print(f"Host {target_ip} is unreachable")
         sys.exit(1)
 
     try:
