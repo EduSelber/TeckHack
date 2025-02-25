@@ -3,6 +3,34 @@ import sys
 import os
 from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm 
+import ipaddress  # Novo módulo para manipulação de sub-redes
+
+well_known_ports = {
+    22: "SSH",
+    23: "Telnet",
+    25: "SMTP",
+    53: "DNS",
+    69: "TFTP",
+    80: "HTTP",
+    110: "POP3",
+    119: "NNTP",
+    123: "NTP",
+    143: "IMAP",
+    161: "SNMP",
+    194: "IRC",
+    443: "HTTPS",
+    465: "SMTPS",
+    514: "Syslog",
+    587: "SMTP (Submission)",
+    993: "IMAPS",
+    995: "POP3S",
+    3306: "MySQL",
+    3389: "RDP",
+    5432: "PostgreSQL",
+    5900: "VNC",
+    6379: "Redis",
+    8080: "HTTP-Proxy"
+}
 
 def banner_grab(ports, target, family):
     print("\nBanner Grabbing")
@@ -28,8 +56,12 @@ def scan_port(target, port, family):
         if result == 0:  
             try:
                 service = socket.getservbyport(port)
-            except:
-                service = "Unknown Service"
+            except OSError:
+                service = None
+
+            if service is None:
+                service = well_known_ports.get(port, "Unknown Service")
+                
             s.close()
             return (port, service, "Open")  
         
@@ -102,8 +134,25 @@ def is_host_reachable(target, family):
     except:
         return False
 
+def scan_network(network, start_port, end_port, family):
+    reachable_hosts = []
+    open_ports_per_host = {}
+
+    for ip in ipaddress.IPv4Network(network, strict=False):
+        target = str(ip)
+        print("\n")
+        print("-"*20)
+        print(f"Scanning host with IP:{target} ")
+        open_ports = scanning(start_port, end_port, target, family)
+        if open_ports:
+            open_ports_per_host[target] = open_ports
+        print("-"*20)
+        
+    
+    return open_ports_per_host
+
 def main():
-    target = input("Enter the IP address or hostname of the target server/host:  ")
+    target = input("Enter the IP(Ipv4 or Ipv6) address or hostname of the target server/host:  ")
     family = None
     target_ip = None
 
@@ -123,9 +172,31 @@ def main():
         print("Invalid input. Please enter numeric values for the ports.")
         sys.exit(1)
 
-    print(f'Scanning host with IP: {target_ip} from port {start_port} to {end_port}')
-    open_ports = scanning(start_port, end_port, target_ip, family)
-    banner_grab(open_ports, target_ip, family)
+    choice = input("Would you like to scan a single host or a network? (single/network): ").lower()
+    
+    if choice == 'single':
+        print(f'Scanning host with IP: {target_ip} from port {start_port} to {end_port}')
+        open_ports = scanning(start_port, end_port, target_ip, family)
+        banner_grab(open_ports, target_ip, family)
+    elif choice == 'network':
+        print(f'Scanning network: {target_ip} from port {start_port} to {end_port}')
+        subnet_mask = input("Enter the subnet mask (between 0 and 32): ")
+        
+        if not (0 <= int(subnet_mask) <= 32):
+            print("Invalid subnet mask. Please enter a value between 0 and 32.")
+            sys.exit(1)
+
+        network = f"{target_ip}/{subnet_mask}"
+        open_ports_per_host = scan_network(network, start_port, end_port, family)
+        
+        for host, open_ports in open_ports_per_host.items():
+            print("\n")
+            print("-"*20)
+            print(f"Host {host} has open ports: {open_ports}")
+            banner_grab(open_ports, host, family)
+            print("-"*20)
+    else:
+        print("Invalid choice.")
     
     print("Scan completed.")
     sys.exit(0)
