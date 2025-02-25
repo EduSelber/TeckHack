@@ -32,6 +32,24 @@ well_known_ports = {
     8080: "HTTP-Proxy"
 }
 
+def detect_os_from_banner(banner):
+    
+    os_patterns = {
+        'Linux': ['Ubuntu', 'Debian', 'Red Hat', 'CentOS', 'Fedora'],
+        'Windows': ['Windows NT', 'Microsoft Windows', 'IIS'],
+        'MacOS': ['Darwin', 'Mac OS X'],
+        'Apache': ['Apache', 'httpd'],
+        'Nginx': ['nginx'],
+        'SSH': ['OpenSSH'],
+    }
+
+    
+    for os, patterns in os_patterns.items():
+        for pattern in patterns:
+            if pattern.lower() in banner.lower():
+                return os
+    return 'Unknown OS'
+
 def banner_grab(ports, target, family):
     print("\nBanner Grabbing")
     for port in ports:
@@ -39,13 +57,16 @@ def banner_grab(ports, target, family):
             s = socket.socket(family, socket.SOCK_STREAM)
             s.settimeout(3)
             s.connect((target, port))
-            banner = s.recv(1024)
-            print(f"Port {port} - {banner.decode().strip()}")
+            banner = s.recv(1024).decode().strip()
+            if banner:
+                os_detected = detect_os_from_banner(banner)
+                print(f"Port {port} - Banner: {banner} - OS Detected: {os_detected}")
+            else:
+                print(f"Port {port} - No banner available")
             s.close()
-        except:
+        except Exception as e:
             print(f"Port {port} - No banner available")
-    return 
-
+    return
 def scan_port(target, port, family):
     try:
         s = socket.socket(family, socket.SOCK_STREAM)
@@ -124,18 +145,10 @@ def scanning(start_port, end_port, target, family):
     open_ports = [port for port, _, status in port_status if status == "Open"]
     return open_ports
 
-def is_host_reachable(target, family):
-    try:
-        if family == socket.AF_INET6:
-            response = os.system(f"ping6 -c 1 {target} > /dev/null 2>&1")
-        else:
-            response = os.system(f"ping -c 1 {target} > /dev/null 2>&1")
-        return response == 0
-    except:
-        return False
+
 
 def scan_network(network, start_port, end_port, family):
-    reachable_hosts = []
+    
     open_ports_per_host = {}
 
     for ip in ipaddress.IPv4Network(network, strict=False):
