@@ -31,7 +31,7 @@ Este é um script em Python para realizar a varredura de portas em um host ou re
 
 2. Execute o script com:
     ```bash
-    python3 nome_do_script.py
+    python3 roteiro1.py
     ```
 
 3. Escolha o tipo de varredura:
@@ -45,7 +45,23 @@ Este é um script em Python para realizar a varredura de portas em um host ou re
 
 Exemplo:
 
-Would you like to scan a single host or a network? (single/network): single Enter the IP(Ipv4 or Ipv6) address or hostname of the target server/host: 192.168.1.1 Enter the starting port: 20 Enter the ending port: 100
+Would you like to scan a single host or a network? (single/network): single   
+Enter the IP(Ipv4 or Ipv6) address or hostname of the target server/host: 192.168.1.1   
+Enter the starting port: 20   
+Enter the ending port: 100  
+
+### Varredura em Rede
+- Escolha a opção `network`  
+- Digite o endereço da rede(ex: `192.168.1.0`)
+- Digite a subnet mask  
+- Informe a porta inicial e a porta final para a varredura.  
+
+Exemplo:  
+Would you like to scan a single host or a network? (single/network): network  
+Enter the network IP: 192.168.1.0  
+Enter the subnet mask (between 0 and 32): 28  
+Enter the starting port: 20  
+Enter the ending port: 100  
 
 
 ## Possíveis Resultados
@@ -55,7 +71,7 @@ Would you like to scan a single host or a network? (single/network): single Ente
 - **No banner available**: Não foi possível obter um banner da porta aberta.
 - **Banner**: Caso o banner seja recuperado, será exibido o texto do banner e o sistema operacional ou serviço detectado.
 
-Exemplo de saída:
+Exemplo de saída:  
 Port Scan Results: Port 22 - Status: Open - Service: SSH Port 23 - Status: Closed Port 80 - Status: Open - Service: HTTP Port 8080 - Status: Filtered
 
 Caso um banner seja recuperado:
