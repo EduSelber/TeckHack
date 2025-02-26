@@ -31,7 +31,7 @@ Este é um script em Python para realizar a varredura de portas em um host ou re
 
 2. Execute o script com:
     ```bash
-    python3 roteiro1.py
+    python roteiro1.py
     ```
 
 3. Escolha o tipo de varredura:
@@ -72,13 +72,28 @@ Enter the ending port: 100
 - **Banner**: Caso o banner seja recuperado, será exibido o texto do banner e o sistema operacional ou serviço detectado.
 
 Exemplo de saída:  
-Port Scan Results: Port 22 - Status: Open - Service: SSH Port 23 - Status: Closed Port 80 - Status: Open - Service: HTTP Port 8080 - Status: Filtered
+Would you like to scan a single host or a network? (single/network): single  
+Enter the IP(Ipv4 or Ipv6) address or hostname of the target server/host:  scanme.nmap.org  
+Resolving host scanme.nmap.org to IPv4: 45.33.32.156  
+Enter the starting port: 1  
+Enter the ending port: 600  
+Scanning host with IP: 45.33.32.156 from port 1 to 600  
+Scanning Ports: 100%|████████████████████████████████████████████| 600/600 [00:01<00:00, 530.55it/s]  
 
-Caso um banner seja recuperado:
-Port 22 - Banner: SSH-2.0-OpenSSH_7.9p1 Debian-10+deb10u2 - OS Detected: Linux Port 80 - Banner: Apache/2.4.38 (Debian) - OS Detected: Apache
+Port Scan Results:  
+Port 1-21 - Status: Filtered  
+Port 22 - Status: Open - Service: ssh  
+Port 23-79 - Status: Filtered  
+Port 80 - Status: Open - Service: http  
+Port 81-600 - Status: Filtered  
+
+Banner Grabbing  
+Port 22 - Banner: SSH-2.0-OpenSSH_6.6.1p1 Ubuntu-2ubuntu2.13 - OS Detected: Linux  
+Port 80 - No banner available  
+Scan completed.  
+
 
 ## Observações
-- Para a varredura de redes, o script utiliza `strict=False` para considerar IPs válidos, mesmo que não sejam o endereço de rede base.
 - O script utiliza até 1000 threads simultâneas para acelerar o processo de varredura.
 - A detecção de sistema operacional é baseada no conteúdo do banner retornado pelo serviço na porta aberta.
 
