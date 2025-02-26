@@ -186,10 +186,20 @@ def main():
         target = input("Enter the IP(Ipv4 or Ipv6) address or hostname of the target server/host:  ")
         
         try:
+            
             addr_info = socket.getaddrinfo(target, None)
-            target_ip = addr_info[0][4][0]
-            family = addr_info[0][0]
-            print(f"Resolving host {target} to IP {target_ip}")
+            
+            
+            ipv4_info = [info for info in addr_info if info[0] == socket.AF_INET]
+            
+            if ipv4_info:
+                target_ip = ipv4_info[0][4][0]
+                family = socket.AF_INET
+                print(f"Resolving host {target} to IPv4: {target_ip}")
+            else:
+                target_ip = addr_info[0][4][0]  # Caso não haja IPv4, pegamos o IPv6
+                family = socket.AF_INET6
+                print(f"Resolving host {target} to IPv6: {target_ip}")
         except socket.gaierror:
             print("Invalid host or IP address")
             sys.exit(1)
