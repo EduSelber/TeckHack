@@ -127,14 +127,16 @@ def scanning(start_port, end_port, target, family):
                port_status[i + 1][0] == end_port + 1):
             end_port = port_status[i + 1][0]
             i += 1
-        
-        if start_port == end_port:
+        if status in ["Closed", "Filtered"]:
+            if start_port == end_port:
+                print(f"Port {start_port} - Status: {status}")
+            else:
+                print(f"Port {start_port}-{end_port} - Status: {status}")
+        else:
             if service != "N/A":
                 print(f"Port {start_port} - Status: {status} - Service: {service}")
             else:
                 print(f"Port {start_port} - Status: {status}")
-        else:
-            print(f"Port {start_port}-{end_port} - Status: {status}")
         
         i += 1
 
@@ -197,7 +199,7 @@ def main():
                 family = socket.AF_INET
                 print(f"Resolving host {target} to IPv4: {target_ip}")
             else:
-                target_ip = addr_info[0][4][0]  # Caso não haja IPv4, pegamos o IPv6
+                target_ip = addr_info[0][4][0] 
                 family = socket.AF_INET6
                 print(f"Resolving host {target} to IPv6: {target_ip}")
         except socket.gaierror:
