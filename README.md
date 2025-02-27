@@ -17,8 +17,7 @@ Este é um script em Python para realizar a varredura de portas em um host ou re
 ## Instalação
 1. Clone o repositório para o seu ambiente local:
     ```bash
-    git clone https://github.com/seu-usuario/seu-repositorio.git
-    cd seu-repositorio
+    git clone https://github.com/EduSelber/TeckHack.git
     ```
 
 2. Instale as dependências necessárias utilizando `pip`:
