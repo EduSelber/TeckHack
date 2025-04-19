@@ -157,7 +157,7 @@ def scan_network(network, start_port, end_port, family):
     
     return open_ports_per_host
 
-def main():
+def port_scanner():
     choice = input("Would you like to scan a single host or a network? (single/network): ").lower()
     
     if choice == 'network':
@@ -219,5 +219,4 @@ def main():
     print("Scan completed.")
     sys.exit(0)
 
-if __name__ == "__main__":
-    main()
+
