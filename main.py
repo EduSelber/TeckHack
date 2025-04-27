@@ -5,6 +5,7 @@ import option4
 
 def main():
     print('-'*15)
+    
     print("Escolha uma das opcoes abaixo")
 
     print("1. Port Scanner")
@@ -12,6 +13,7 @@ def main():
     print("3. WHOIS lookup")
     print("4. wafw00f")
     print("6. Sair")
+
     print('-'*15)
     choice = input("Escolha: ")
     if choice == "1":

@@ -204,7 +204,7 @@ def port_scanner():
                 print(f"Resolving host {target} to IPv6: {target_ip}")
         except socket.gaierror:
             print("Invalid host or IP address")
-            sys.exit(1)
+            return
 
         start_port = int(input("Enter the starting port: "))
         end_port = int(input("Enter the ending port: "))
@@ -217,6 +217,6 @@ def port_scanner():
         print("Invalid choice.")
     
     print("Scan completed.")
-    sys.exit(0)
+    return
 
 
