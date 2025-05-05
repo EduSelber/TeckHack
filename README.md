@@ -28,6 +28,13 @@
 - Python 3.x
 
 ### Instale as bibliotecas necessárias com:
+
+#### Recomendado:
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
 ```bash
 pip install -r requirements.txt
 ```
