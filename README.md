@@ -29,12 +29,6 @@
 
 ### Instale as bibliotecas necessárias com:
 
-#### Recomendado:
-```bash
-python -m venv venv
-venv\Scripts\activate
-```
-#### Para instalar as libarys:
 ```bash
 pip install -r requirements.txt
 ```
@@ -52,8 +46,12 @@ python-whois
 git clone https://github.com/EduSelber/TeckHack.git
 cd TeckHack
 ```
-
-2. Instale os requisitos:
+2. Crie um ambiente virtual(Recomendado):
+```bash
+python -m venv venv
+venv\Scripts\activate
+``` 
+3. Instale os requisitos:
 ```bash
 pip install -r requirements.txt
 ```
