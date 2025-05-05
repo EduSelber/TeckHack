@@ -34,7 +34,7 @@
 python -m venv venv
 venv\Scripts\activate
 ```
-
+#### Para instalar as libarys:
 ```bash
 pip install -r requirements.txt
 ```
