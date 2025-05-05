@@ -32,7 +32,7 @@
 pip install -r requirements.txt
 ```
 
-### Exemplo de requirements.txt:
+### Conteúdo do requirements.txt:
 ```text
 tqdm
 wafw00f
